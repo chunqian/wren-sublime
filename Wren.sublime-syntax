@@ -1,0 +1,221 @@
+%YAML 1.2
+---
+# http://www.sublimetext.com/docs/syntax.html
+name: Wren
+file_extensions:
+  - wren
+scope: source.wren
+
+variables:
+  identifier: \b[[:alpha:]_][[:alnum:]_]*\b # upper and lowercase
+
+contexts:
+  main:
+    - include: code
+
+  block-argument:
+    - match: '[)a-zA-Z0-9_]\s*(\{)'
+      captures:
+        1: punctuation.block-argument.wren
+      push:
+        - match: '}'
+          captures:
+            0: punctuation.block-argument.wren
+          pop: true
+        - match: '\|'
+          captures:
+            0: punctuation.definition.parameters.wren
+          push:
+            - meta_scope: meta.block.parameters
+            - match: '\|'
+              captures:
+                0: punctuation.definition.parameters.wren
+              pop: true
+            - match: '\w+'
+              scope: variable.parameter.wren
+        - include: code
+
+  class:
+    - match: '(?:\b(foreign)\s+)?(\bclass)\s+(\w+)\s+(?:(\bis)\s+(\w+))?'
+      captures:
+        1: storage.modifier.wren
+        2: storage.modifier.wren
+        3: entity.name.class.wren
+        4: storage.modifier.wren
+        5: entity.name.class.wren
+      push:
+        - meta_scope: meta.class.wren
+        - match: '(?=})'
+          captures:
+            0: punctuation.section.class.end.wren
+          pop: true
+        - include: comments
+        - match: '\bis\b'
+          captures:
+            0: storage.modifier.is.wren
+          push:
+            - meta_scope: meta.definition.class.inherited.wren
+            - match: '(?={)'
+              pop: true
+            - include: code
+        - match: '{'
+          push:
+            - meta_scope: meta.class.body.wren
+            - match: '(?=})'
+              pop: true
+            - include: class-body
+
+  class-body:
+    - include: comment-block
+    - include: comment-line
+    - include: method-foreign
+    - include: method
+
+  code:
+    - include: block-argument
+    - include: class
+    - include: comment-block
+    - include: comment-line
+    - include: constant
+    - include: keyword
+    - include: list
+    - include: string
+    - include: variable
+    - include: function-call
+    - match: '{'
+      push:
+        - match: '}'
+          pop: true
+        - include: code
+
+  comment-block:
+    - match: '/\*'
+      captures:
+        0: punctuation.definition.comment.wren
+      push:
+        - meta_scope: comment.block.wren
+        - match: '\*/'
+          captures:
+            0: punctuation.definition.comment.wren
+          pop: true
+        - include: comment-block
+
+  comment-line:
+    - match: '\s*((//).*$\n?)'
+      captures:
+        1: comment.line.double-slash.wren
+        2: punctuation.definition.comment.wren
+
+  comments: []
+
+  constant:
+    - match: '\b(true|false|null)\b'
+      scope: constant.language.wren
+    - match: '\b(this|super)\b'
+      scope: variable.language.wren
+    - match: '\b(0x[0-9a-fA-F]*|[0-9]+(\.?[0-9]*)?(e(\+|-)?[0-9]+)?)\b'
+      scope: constant.numeric.wren
+
+  keyword:
+    - match: '\b(break|else|for|if|import|in|new|return|while|var)\b'
+      scope: keyword.control.wren
+    - match: '(!|&&|\|\|)'
+      scope: keyword.operator.logical.wren
+    - match: '\?|:'
+      scope: keyword.control.wren
+    - match: '\b(is)\b'
+      scope: keyword.operator.wren
+    - match: '(==|!=|<=|>=|<|>)'
+      scope: keyword.operator.comparison.wren
+    - match: '(=)'
+      scope: keyword.operator.assignment.wren
+    - match: '(\-|\+|\*|\/|%)'
+      scope: keyword.operator.arithmetic.wren
+    - match: '(~|<<|>>|^)'
+      scope: keyword.operator.bitwise.wren
+    - match: '(\.\.\.?)'
+      scope: keyword.operator.range.wren
+    - match: '(?<=\S)\.(?=\S)'
+      scope: punctuation.accessor.wren
+
+  list:
+    - match: '\['
+      captures:
+        0: entity.name.function.wren
+      push:
+        - meta_scope: meta.method.wren
+        - match: '\]'
+          captures:
+            0: entity.name.function.wren
+          pop: true
+        - include: code
+
+  method:
+    - match: '(?:\b(construct|static)\s+)?(\w+=|\w+|\+|-|\*|\/|%|<=?|>=?|==|!=?|&|\||~)'
+      captures:
+        1: storage.modifier.wren
+        2: entity.name.function.wren
+      push:
+        - meta_scope: meta.method.wren
+        - match: '}'
+          pop: true
+        - match: '\('
+          push:
+            - meta_scope: meta.method.identifier.wren
+            - match: '\)'
+              pop: true
+            # - match: '\w+'
+            #   scope: variable.parameter.function.wren
+        - match: '{'
+          push:
+            - meta_scope: meta.method.body.wren
+            - match: '(?=})'
+              pop: true
+            - include: code
+
+  method-foreign:
+    - match: '\b(foreign)\s+(?:\b(construct|static)\s+)?(\w+=|\w+|\+|-|\*|\/|%|<=?|>=?|==|!=?|&|\||~)'
+      captures:
+        1: storage.modifier.wren
+        2: storage.modifier.wren
+        3: entity.name.function.wren
+      push:
+        - meta_scope: meta.method.wren
+        - match: '\n'
+          pop: true
+        - include: comment
+        - match: '\('
+          push:
+            - meta_scope: meta.method.identifier.wren
+            - match: '\)'
+              pop: true
+            - match: '\w+'
+              scope: variable.parameter.function.wren
+
+  string:
+    - match: '"'
+      captures:
+        0: punctuation.definition.string.begin.wren
+      push:
+        - meta_scope: string.quoted.double.wren
+        - match: '"'
+          captures:
+            0: punctuation.definition.string.end.wren
+          pop: true
+        - match: '(\\x\h\h|\\u\h\h\h\h|\\[0"\\abfnrtv])'
+          scope: constant.character.escape.wren
+
+  variable:
+    - match: '\b(this|super)\b'
+      scope: variable.language.wren
+    - match: '\b__\w*'
+      scope: variable.other.class.wren
+    - match: '\b_\w*'
+      scope: variable.other.instance.wren
+
+  function-call:
+    - match: (?={{identifier}}\s*\()
+      push:
+        - match: '{{identifier}}'
+          scope: variable.function.wren
+          pop: true
