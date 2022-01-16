@@ -154,7 +154,7 @@ contexts:
   method:
     - match: '\['
       scope: punctuation.section.brackets.begin.wren
-    - match: '(?:\b(construct|static)\s+)?(\w+=|\w+,\s*\w+|\w+|\+|-|\*|\/|%|<=?|>=?|==|!=?|&|\||~)'
+    - match: '(?:\b(construct|static)\s+)?(\w+=|\w+(,\s*\w+)*|\w+|\+|-|\*|\/|%|<=?|>=?|==|!=?|&|\||~)'
       captures:
         1: storage.modifier.wren
         2: entity.name.function.wren
