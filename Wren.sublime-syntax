@@ -16,14 +16,14 @@ contexts:
   block-argument:
     - match: '\)'
       scope: punctuation.section.group.end.wren
-    - match: '[a-zA-Z0-9_]\s*(\{)'
+    - match: '[a-zA-Z0-9_]?\s*(\{)'
       captures:
         1: punctuation.section.block.begin.wren
       push:
         - match: '}'
           scope: punctuation.section.block.end.wren
           pop: true
-        - match: '\|'
+        - match: '\|(?=\w+)'
           captures:
             0: punctuation.definition.parameters.wren
           push:
