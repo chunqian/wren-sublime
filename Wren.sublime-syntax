@@ -225,12 +225,12 @@ contexts:
       scope: variable.other.instance.wren
 
   function-call:
-    - match: (?={{identifier}}\s*\()
+    - match: '(?={{identifier}}\s*\()'
       push:
         - match: '{{identifier}}'
           scope: variable.function.wren
           pop: true
-    - match: \(
+    - match: '\('
       scope: punctuation.section.group.begin.wren
-    - match: \)
+    - match: '\)'
       scope: punctuation.section.group.end.wren
