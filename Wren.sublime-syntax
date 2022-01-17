@@ -120,7 +120,7 @@ contexts:
       scope: constant.numeric.wren
 
   keyword:
-    - match: '\b(break|else|for|if|import|in|new|return|while|var)\b'
+    - match: '\b(break|else|for|if|import|in|new|return|while|continue|var)\b'
       scope: keyword.control.wren
     - match: '(!|&&|\|\|)'
       scope: keyword.operator.logical.wren
